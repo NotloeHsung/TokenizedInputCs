@@ -9,29 +9,14 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 
+//https://stackoverflow.com/a/59177815/3104267 It's required for the generic resource dictionary to be found:
+[assembly: System.Windows.ThemeInfo(
+    ResourceDictionaryLocation.None,
+    ResourceDictionaryLocation.SourceAssembly
+)]
+
 namespace TokenizedTag
 {
-    [ValueConversion(typeof(bool), typeof(Visibility))]
-    public class InvertedBoolToVisibility : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            bool enabled = (bool)value;
-            if (enabled)
-            {
-                return Visibility.Collapsed;
-            }
-            else
-            {
-                return Visibility.Visible;
-            }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return null;
-        }
-    }
     /*
     public class VisibilityNotify : INotifyPropertyChanged
     {
@@ -82,24 +67,24 @@ namespace TokenizedTag
         public event EventHandler<TokenizedTagEventArgs> TagAdded;
         public event EventHandler<TokenizedTagEventArgs> TagApplied;
         public event EventHandler<TokenizedTagEventArgs> TagRemoved;
-/*
+        /*
 
-        // boiler-plate
-        // http://stackoverflow.com/questions/1315621/implementing-inotifypropertychanged-does-a-better-way-exist
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
-        }
-        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-            field = value;
-            OnPropertyChanged(propertyName);
-            return true;
-        }
-*/
+                // boiler-plate
+                // http://stackoverflow.com/questions/1315621/implementing-inotifypropertychanged-does-a-better-way-exist
+                public event PropertyChangedEventHandler PropertyChanged;
+                protected virtual void OnPropertyChanged(string propertyName)
+                {
+                    PropertyChangedEventHandler handler = PropertyChanged;
+                    if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+                }
+                protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+                {
+                    if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+                    field = value;
+                    OnPropertyChanged(propertyName);
+                    return true;
+                }
+        */
 
         static TokenizedTagControl()
         {
@@ -133,21 +118,21 @@ namespace TokenizedTag
             }
 
             TokenizedTagItem itemToSelect = null;
-            if (this.Items.Count > 0 && !object.ReferenceEquals((TokenizedTagItem)this.Items.CurrentItem, null))
+            if (this.Items.Count > 0 && (TokenizedTagItem)this.Items.CurrentItem is not null)
             {
-                if (this.SelectedItem != null && ((TokenizedTagItem) this.SelectedItem).Text != null &&
-                    !((TokenizedTagItem) this.SelectedItem).IsEditing)
+                if (this.SelectedItem != null && ((TokenizedTagItem)this.SelectedItem).Text != null &&
+                    !((TokenizedTagItem)this.SelectedItem).IsEditing)
                 {
-                    itemToSelect = (TokenizedTagItem) this.SelectedItem;
+                    itemToSelect = (TokenizedTagItem)this.SelectedItem;
                 }
                 else if (!String.IsNullOrWhiteSpace(((TokenizedTagItem)this.Items.CurrentItem).Text))
                 {
-                    itemToSelect = (TokenizedTagItem) this.Items.CurrentItem;
+                    itemToSelect = (TokenizedTagItem)this.Items.CurrentItem;
                 }
             }
-            
+
             // select the previous item
-            if (!object.ReferenceEquals(itemToSelect, null))
+            if (itemToSelect is not null)
             {
                 e.Handled = true;
                 RaiseTagApplied(itemToSelect);
@@ -157,7 +142,7 @@ namespace TokenizedTag
                     //itemToSelect.Focus();
                 }
             }
-                //RaiseTagClick(itemToSelect);
+            //RaiseTagClick(itemToSelect);
         }
 
         // AllTags
@@ -165,11 +150,10 @@ namespace TokenizedTag
         {
             get
             {
-                if (!object.ReferenceEquals(this.ItemsSource, null) && ((List<TokenizedTagItem>)this.ItemsSource).Any())
+                if (this.ItemsSource is not null && ((List<TokenizedTagItem>)this.ItemsSource).Any())
                 {
                     var tokenizedTagItems = (List<TokenizedTagItem>)this.ItemsSource;
-                    var typedTags = (from TokenizedTagItem item in tokenizedTagItems
-                                     select item.Text);
+                    var typedTags = tokenizedTagItems.Select(item => item.Text);
                     return typedTags.ToList();
                 }
                 return new List<string>(0);
@@ -180,11 +164,11 @@ namespace TokenizedTag
         {
             get
             {
-                if (!object.ReferenceEquals(this.ItemsSource, null) && ((List<TokenizedTagItem>)this.ItemsSource).Any())
+                if (this.ItemsSource is not null && ((List<TokenizedTagItem>)this.ItemsSource).Any())
                 {
                     var tokenizedTagItems = (List<TokenizedTagItem>)this.ItemsSource;
-                    var typedTags = (from TokenizedTagItem item in tokenizedTagItems
-                                     select item.Text);
+                    var typedTags = tokenizedTagItems.Select(item => item.Text);
+
                     //if (!object.ReferenceEquals((TokenizedTagItem)this.SelectedItem, null))
                     //    typedTags = typedTags.Except(new string[]{ ((TokenizedTagItem)this.SelectedItem).Text});
                     //if ((this.Items.Count - 1) > 0 && !object.ReferenceEquals(this.Items.GetItemAt(this.Items.Count - 1), null) && !String.IsNullOrWhiteSpace(((TokenizedTagItem)this.Items.GetItemAt(this.Items.Count - 1)).Text))
@@ -193,7 +177,7 @@ namespace TokenizedTag
                     return (_allTags).Except(typedTags)
                         .ToList();
                 }
-//                return (List<string>)GetValue(AllTagsProperty);
+                //                return (List<string>)GetValue(AllTagsProperty);
                 return _allTags;
             }
             set
@@ -204,14 +188,14 @@ namespace TokenizedTag
             }
         }
 
-        private List<string> _allTags = new List<string>();
+        private List<string> _allTags = new();
         public static readonly DependencyProperty AllTagsProperty = DependencyProperty.Register("AllTags", typeof(List<string>), typeof(TokenizedTagControl), new PropertyMetadata(new List<string>()));
 
         public string Placeholder
         {
-            get 
-            { 
-                return (string)GetValue(PlaceholderProperty); 
+            get
+            {
+                return (string)GetValue(PlaceholderProperty);
             }
             set
             {
@@ -225,21 +209,21 @@ namespace TokenizedTag
             SetValue(AllTagsProperty, AllTags);
         }
         //, new PropertyChangedCallback(OnAllTagsPropertyChanged)
-//        private static void OnAllTagsPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
-//        {
-//            PropertyChangedEventHandler h = PropertyChanged;
-//            if (h != null)
-//            {
-//                h(sender, new PropertyChangedEventArgs("Second"));
-//            }
-//        }
+        //        private static void OnAllTagsPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        //        {
+        //            PropertyChangedEventHandler h = PropertyChanged;
+        //            if (h != null)
+        //            {
+        //                h(sender, new PropertyChangedEventArgs("Second"));
+        //            }
+        //        }
         public static readonly DependencyProperty IsSelectableProperty = DependencyProperty.Register("IsSelectable", typeof(bool), typeof(TokenizedTagControl), new PropertyMetadata(false));
         //, new PropertyChangedCallback(IsSelectablePropertyChanged)
-//
-//        private static void IsSelectablePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-//        {
-//
-//        }
+        //
+        //        private static void IsSelectablePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        //        {
+        //
+        //        }
         public bool IsSelectable { get { return (bool)GetValue(IsSelectableProperty); } set { SetValue(IsSelectableProperty, value); } }
 
         public bool IsEditing { get { return (bool)GetValue(IsEditingProperty); } internal set { SetValue(IsEditingPropertyKey, value); } }
@@ -253,11 +237,10 @@ namespace TokenizedTag
 
         public void OnApplyTemplate(TokenizedTagItem appliedTag = null)
         {
-            Button createBtn = this.GetTemplateChild("PART_CreateTagButton") as Button;
-            if (createBtn != null)
+            if (this.GetTemplateChild("PART_CreateTagButton") is Button createBtn)
             {
-                createBtn.Click -= createBtn_Click;
-                createBtn.Click += createBtn_Click;
+                createBtn.Click -= CreateBtn_Click;
+                createBtn.Click += CreateBtn_Click;
                 //createBtn.Focus();
                 // nixin - focuses
                 //createBtn_Click(createBtn, null);
@@ -265,7 +248,7 @@ namespace TokenizedTag
 
             base.OnApplyTemplate();
 
-            if (appliedTag != null && !object.ReferenceEquals(TagApplied, null))
+            if (appliedTag != null && TagApplied is not null)
             {
                 TagApplied.Invoke(this, new TokenizedTagEventArgs(appliedTag));
             }
@@ -275,7 +258,7 @@ namespace TokenizedTag
         /// Executed when create new tag button is clicked.
         /// Adds an TokenizedTagItem to the collection and puts it in edit mode.
         /// </summary>
-        void createBtn_Click(object sender, RoutedEventArgs e)
+        void CreateBtn_Click(object sender, RoutedEventArgs e)
         {
             this.SelectedItem = InitializeNewTag();
         }
@@ -298,13 +281,13 @@ namespace TokenizedTag
             TokenizedTagItem itemToSelect = null;
             if (this.SelectedItem == null && this.Items.Count > 0)
             {
-                 itemToSelect = (TokenizedTagItem)this.SelectedItem;
+                itemToSelect = (TokenizedTagItem)this.SelectedItem;
             }
             ((IList)this.ItemsSource).Add(tag); // assume IList for convenience
             this.Items.Refresh();
 
             // select the previous item
-            if (!object.ReferenceEquals(itemToSelect, null))
+            if (itemToSelect is not null)
             {
                 // && !object.ReferenceEquals(TagApplied, null)
                 //TagApplied.Invoke(this, new TokenizedTagEventArgs(appliedTag));
@@ -316,8 +299,7 @@ namespace TokenizedTag
             // update values
             //UpdateAllTagsProperty();
 
-            if (TagAdded != null)
-                TagAdded(this, new TokenizedTagEventArgs(tag));
+            TagAdded?.Invoke(this, new TokenizedTagEventArgs(tag));
         }
 
         /// <summary>
@@ -341,7 +323,7 @@ namespace TokenizedTag
                 {
                     //TokenizedTagItem itemToSelect = this.Items.GetItemAt(0) as TokenizedTagItem;
                     TokenizedTagItem itemToSelect = Items.GetItemAt(Items.Count - 1) as TokenizedTagItem;
-                    if (!object.ReferenceEquals(itemToSelect, null))
+                    if (itemToSelect is not null)
                     {
                         RaiseTagClick(itemToSelect);
                         if (this.IsSelectable)

@@ -2,16 +2,21 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="350" Width="525"
-        xmlns:TokenizedTag="clr-namespace:TokenizedTag;assembly=TokenizedTagControl">
+        xmlns:TokenizedTag="clr-namespace:TokenizedTag;assembly=TokenizedTag"
+        xmlns:s="clr-namespace:System;assembly=mscorlib"
+        xmlns:tkInput="clr-namespace:System.Windows.Controls;assembly=DotNetProjects.Input.Toolkit"
+        >
     <StackPanel>
-        <TokenizedTag:TokenizedTagControl x:Name="ProjectsControl" VerticalAlignment="Stretch" 
-                                                  Placeholder="Makin facka" IsSelectable="True" BorderBrush="LightGray" BorderThickness="1" 
-                                                  TagApplied="ProjectsControl_TagApplied" TagClick="ProjectsControl_TagClick"
-                                                  SelectionChanged="ProjectsControl_SelectionChanged"
-                                                  />
-        <TokenizedTag:TokenizedTagControl VerticalAlignment="Stretch" 
-                                                  Placeholder="Makin facka 2" BorderBrush="LightGray" BorderThickness="1" 
-                                                  />
+        <TokenizedTag:TokenizedTagControl VerticalAlignment="Stretch" x:Name="ProjectsControl"
+                                          Placeholder="TokenizedTagControl 1" IsSelectable="True" BorderBrush="LightGray" BorderThickness="1" 
+                                          TagApplied="ProjectsControl_TagApplied" TagClick="ProjectsControl_TagClick"
+                                          SelectionChanged="ProjectsControl_SelectionChanged" AllowDrop="True"
+                                          AllTags="{Binding Tags, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+
+        <TokenizedTag:TokenizedTagControl VerticalAlignment="Stretch" Placeholder="TokenizedTagControl 2" BorderBrush="LightGray" BorderThickness="1" />
+
+
+
         <Label Content="LastApplied:"/>
         <Label x:Name="LastApplied" Content="None"/>
         <Label Content="LastClicked:"/>
@@ -19,5 +24,24 @@
         <Label Content="SelectionChanged:"/>
         <Label x:Name="SelectionChanged" Content="None"/>
         <!-- TagClick="ProjectsControl_TagApplied" TagApplied="ProjectsControl_TagApplied" -->
+
+        <tkInput:AutoCompleteBox Margin="0" Padding="0 4" VerticalAlignment="Center"
+            Text="{Binding Tag, ElementName=ProjectsControl, Mode=TwoWay}"                     
+            IsTextCompletionEnabled="True"
+            FilterMode="Contains"
+            ItemsSource="{Binding Tags, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                 >
+
+            <!--<tkInput:AutoCompleteBox.ItemsSource>
+                <x:Array Type="sys:String" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                    <s:String>read</s:String>
+                    <s:String>receipt</s:String>
+                    <s:String>recipe</s:String>
+                    <s:String>research</s:String>
+                    <s:String>restaurants</s:String>
+                </x:Array>
+            </tkInput:AutoCompleteBox.ItemsSource>-->
+        </tkInput:AutoCompleteBox>
+        <Button Click="Button_Click" Content="Test" />
     </StackPanel>
 </Window>

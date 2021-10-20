@@ -41,14 +41,13 @@ namespace TokenizedTag
         /// </summary>
         public override void OnApplyTemplate()
         {
-            AutoCompleteBox inputBox = this.GetTemplateChild("PART_InputBox") as AutoCompleteBox;
-            if (inputBox != null)
+            if (this.GetTemplateChild("PART_InputBox") is AutoCompleteBox inputBox)
             {
                 //inputBox.DropDownClosed +=inputBox_DropDownClosed;
-//                inputBox.SelectionChanged += inputBox_SelectionChanged;
-                inputBox.LostKeyboardFocus += inputBox_LostFocus; //GotFocus
-//                inputBox.LostFocus += inputBox_LostFocus;
-                inputBox.Loaded += inputBox_Loaded;
+                //                inputBox.SelectionChanged += inputBox_SelectionChanged;
+                inputBox.LostKeyboardFocus += InputBox_LostFocus; //GotFocus
+                                                                  //                inputBox.LostFocus += inputBox_LostFocus;
+                inputBox.Loaded += InputBox_Loaded;
                 /*
                 inputBox.KeyDown += (s, e) =>
                 {
@@ -64,19 +63,18 @@ namespace TokenizedTag
                  * */
             }
 
-            Button btn = this.GetTemplateChild("PART_TagButton") as Button;
-            if (btn != null)
+            if (this.GetTemplateChild("PART_TagButton") is Button btn)
             {
                 //btn.LostKeyboardFocus += inputBox_LostFocus;
 
                 btn.Loaded += (s, e) =>
                 {
                     Button b = s as Button;
-                    var btnDelete = b.Template.FindName("PART_DeleteTagButton", b) as Button; // will only be found once button is loaded
-                    if (btnDelete != null)
+                    // will only be found once button is loaded
+                    if (b.Template.FindName("PART_DeleteTagButton", b) is Button btnDelete)
                     {
-                        btnDelete.Click -= btnDelete_Click; // make sure the handler is applied just once
-                        btnDelete.Click += btnDelete_Click;
+                        btnDelete.Click -= BtnDelete_Click; // make sure the handler is applied just once
+                        btnDelete.Click += BtnDelete_Click;
                     }
                 };
 
@@ -110,7 +108,7 @@ namespace TokenizedTag
                             parent.SelectedItem = this;
                         }
                     }
-                        
+
                 };
 
             }
@@ -123,7 +121,7 @@ namespace TokenizedTag
         /// Handles the click on the delete glyph of the tag button.
         /// Removes the tag from the collection.
         /// </summary>
-        void btnDelete_Click(object sender, RoutedEventArgs e)
+        void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
 
             var item = FindUpVisualTree<TokenizedTagItem>(sender as FrameworkElement);
@@ -134,7 +132,7 @@ namespace TokenizedTag
             e.Handled = true; // bubbling would raise the tag click event
         }
 
-        static bool isDuplicate(TokenizedTagControl tagControl, string compareTo)
+        static bool IsDuplicate(TokenizedTagControl tagControl, string compareTo)
         {
             var duplicateCount = (from TokenizedTagItem item in (IList)tagControl.ItemsSource
                                    where item.Text.ToLower() == compareTo.ToLower()
@@ -150,15 +148,11 @@ namespace TokenizedTag
         /// Wire PreviewKeyDown event to handle Escape/Enter keys
         /// </summary>
         /// <remarks>AutoCompleteBox.Focus() is broken: http://stackoverflow.com/questions/3572299/autocompletebox-focus-in-wpf</remarks>
-        void inputBox_Loaded(object sender, RoutedEventArgs e)
+        void InputBox_Loaded(object sender, RoutedEventArgs e)
         {
-            AutoCompleteBox acb = sender as AutoCompleteBox;
-            
-            if (acb != null)
+            if (sender is AutoCompleteBox acb)
             {
-                var tb = acb.Template.FindName("Text", acb) as TextBox;
-
-                if (tb != null)
+                if (acb.Template.FindName("Text", acb) is TextBox tb)
                     tb.Focus();
                 /*
                 acb.SelectionChanged += (s, e1) =>
@@ -181,7 +175,7 @@ namespace TokenizedTag
                             case (Key.Enter):  // accept tag
                                 if (!string.IsNullOrWhiteSpace(this.Text))
                                 {
-                                    if (isDuplicate(parent, this.Text))
+                                    if (IsDuplicate(parent, this.Text))
                                         break;
                                     parent.OnApplyTemplate(this);
                                     parent.SelectedItem = parent.InitializeNewTag();//creates another tag
@@ -196,7 +190,7 @@ namespace TokenizedTag
                             case (Key.Back):
                                 if (string.IsNullOrWhiteSpace(this.Text))
                                 {
-                                    inputBox_LostFocus(this, new RoutedEventArgs());
+                                    InputBox_LostFocus(this, new RoutedEventArgs());
                                     var previousTagIndex = ((IList)parent.ItemsSource).Count - 1;
                                     if (previousTagIndex < 0) break;
 
@@ -219,14 +213,14 @@ namespace TokenizedTag
         /// Set IsEditing to false when the AutoCompleteBox loses keyboard focus.
         /// This will change the template, displaying the tag as a button.
         /// </summary>
-        void inputBox_LostFocus(object sender, RoutedEventArgs e)
+        void InputBox_LostFocus(object sender, RoutedEventArgs e)
         {
             var parent = GetParent();
             if (!string.IsNullOrWhiteSpace(this.Text))
             {
                 if (parent != null)
                 {
-                    if (isDuplicate(parent, this.Text))
+                    if (IsDuplicate(parent, this.Text))
                         parent.RemoveTag(this, true); // do not raise RemoveTag event
                 }
                 if (!(sender as AutoCompleteBox).IsDropDownOpen)

@@ -24,8 +24,16 @@ namespace TokenizedTagTest
     {
         public MainWindow()
         {
+            Tags = new() { "Test", "Wahnsinn", "123", "Warum" };
+
             InitializeComponent();
+
+            //ProjectsControl.AllTags
         }
+
+        public List<string> Tags { get; set; }
+
+        public string Text { get; set; }
 
         private void ProjectsControl_TagApplied(object sender, TokenizedTag.TokenizedTagEventArgs e)
         {
@@ -39,8 +47,14 @@ namespace TokenizedTagTest
 
         private void ProjectsControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.AddedItems.Count > 0)
-                SelectionChanged.Content = e.AddedItems.Cast<TokenizedTagItem>().Last().Text;
+            //Exception when navigating through AutoCompleteBox
+            //if (e.AddedItems.Count > 0)
+            //    SelectionChanged.Content = e.AddedItems.Cast<TokenizedTagItem>().Last().Text;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            ProjectsControl.AllTags = Tags;
         }
     }
 }
