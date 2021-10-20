@@ -5,10 +5,11 @@ VisualStudioVersion = 16.0.31410.357
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TokenizedTag", "TokenizedTag\TokenizedTag.csproj", "{DEE9D6A5-D239-4D42-A493-720796B5A346}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TokenizedTagTest", "TokenizedTagTest\TokenizedTagTest.csproj", "{3DBBD917-8DFE-4ECA-BF98-BC5F4DB1B7F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TokenizedTagTest", "TokenizedTagTest\TokenizedTagTest.csproj", "{3DBBD917-8DFE-4ECA-BF98-BC5F4DB1B7F9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{697A7621-EBA1-4A35-8ABE-1B1C64AC5341}"
 	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 		LICENSE = LICENSE
 		README = README
@@ -33,7 +34,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {AC454FE7-074E-4D48-B1F1-08E2CFAE9DB8}
 		SolutionGuid = {927EFC6E-4CFB-4551-841A-837333D23B97}
 	EndGlobalSection
 EndGlobal
