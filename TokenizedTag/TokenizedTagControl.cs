@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 
 //https://stackoverflow.com/a/59177815/3104267 It's required for the generic resource dictionary to be found:
 [assembly: System.Windows.ThemeInfo(
@@ -67,24 +63,24 @@ namespace TokenizedTag
         public event EventHandler<TokenizedTagEventArgs> TagAdded;
         public event EventHandler<TokenizedTagEventArgs> TagApplied;
         public event EventHandler<TokenizedTagEventArgs> TagRemoved;
-        /*
 
-                // boiler-plate
-                // http://stackoverflow.com/questions/1315621/implementing-inotifypropertychanged-does-a-better-way-exist
-                public event PropertyChangedEventHandler PropertyChanged;
-                protected virtual void OnPropertyChanged(string propertyName)
-                {
-                    PropertyChangedEventHandler handler = PropertyChanged;
-                    if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
-                }
-                protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
-                {
-                    if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-                    field = value;
-                    OnPropertyChanged(propertyName);
-                    return true;
-                }
-        */
+
+        //// boiler-plate
+        //// http://stackoverflow.com/questions/1315621/implementing-inotifypropertychanged-does-a-better-way-exist
+        //public event PropertyChangedEventHandler PropertyChanged;
+        //protected virtual void OnPropertyChanged(string propertyName)
+        //{
+        //    PropertyChangedEventHandler handler = PropertyChanged;
+        //    if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+        //}
+        //protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        //{
+        //    if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        //    field = value;
+        //    OnPropertyChanged(propertyName);
+        //    return true;
+        //}
+
 
         static TokenizedTagControl()
         {
@@ -101,8 +97,8 @@ namespace TokenizedTag
             if (this.ItemsSource == null)
                 this.ItemsSource = new List<TokenizedTagItem>();
 
-            if (this.AllTags == null)
-                this.AllTags = new List<string>();
+            //if (this.AllTags == null)
+            //    this.AllTags = new List<string>();
 
             this.LostKeyboardFocus += TokenizedTagControl_LostKeyboardFocus;
             //this.ItemsSource = new List<TokenizedTagItem>() { new TokenizedTagItem("receipt"), new TokenizedTagItem("restaurant") };
@@ -160,11 +156,12 @@ namespace TokenizedTag
             }
         }
 
-        public List<string> AllTags
+        public IEnumerable<string> AllTags
         {
             get
             {
-                if (this.ItemsSource is not null && ((List<TokenizedTagItem>)this.ItemsSource).Any())
+                var allTags = (List<string>)GetValue(AllTagsProperty);
+                if (allTags != null && this.ItemsSource is not null && ((List<TokenizedTagItem>)this.ItemsSource).Any())
                 {
                     var tokenizedTagItems = (List<TokenizedTagItem>)this.ItemsSource;
                     var typedTags = tokenizedTagItems.Select(item => item.Text);
@@ -174,22 +171,20 @@ namespace TokenizedTag
                     //if ((this.Items.Count - 1) > 0 && !object.ReferenceEquals(this.Items.GetItemAt(this.Items.Count - 1), null) && !String.IsNullOrWhiteSpace(((TokenizedTagItem)this.Items.GetItemAt(this.Items.Count - 1)).Text))
                     //    typedTags = typedTags.Except(new string[]{ ((TokenizedTagItem)this.SelectedItem).Text});
 
-                    return (_allTags).Except(typedTags)
+                    return allTags.Except(typedTags)
                         .ToList();
                 }
                 //                return (List<string>)GetValue(AllTagsProperty);
-                return _allTags;
+                return allTags;
             }
             set
             {
-                //SetField(ref AllTagsProperty, value);
+                //SetField(ref allTags, value);
                 SetValue(AllTagsProperty, value);
-                _allTags = value;
             }
         }
 
-        private List<string> _allTags = new();
-        public static readonly DependencyProperty AllTagsProperty = DependencyProperty.Register("AllTags", typeof(List<string>), typeof(TokenizedTagControl), new PropertyMetadata(new List<string>()));
+        public static readonly DependencyProperty AllTagsProperty = DependencyProperty.Register(nameof(AllTags), typeof(IEnumerable<string>), typeof(TokenizedTagControl), new PropertyMetadata(new List<string>()));
 
         public string Placeholder
         {
@@ -350,9 +345,6 @@ namespace TokenizedTag
             }
         }
 
-        /// <summary>
-        /// Raises the TagClick event
-        /// </summary>
         internal void RaiseTagApplied(TokenizedTagItem tag)
         {
             /*

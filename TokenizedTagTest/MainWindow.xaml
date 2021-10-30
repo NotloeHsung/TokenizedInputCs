@@ -11,11 +11,13 @@
                                           Placeholder="TokenizedTagControl 1" IsSelectable="True" BorderBrush="LightGray" BorderThickness="1" 
                                           TagApplied="ProjectsControl_TagApplied" TagClick="ProjectsControl_TagClick"
                                           SelectionChanged="ProjectsControl_SelectionChanged" AllowDrop="True"
-                                          AllTags="{Binding Tags, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+                                          ItemsSource="{Binding Items, RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                                          AllTags="{Binding Tags, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" 
+                                          />
 
-        <TokenizedTag:TokenizedTagControl VerticalAlignment="Stretch" Placeholder="TokenizedTagControl 2" BorderBrush="LightGray" BorderThickness="1" />
+        <!--<TokenizedTag:TokenizedTagControl VerticalAlignment="Stretch" Placeholder="TokenizedTagControl 2" BorderBrush="LightGray" BorderThickness="1" />-->
 
-
+        <ListBox Height="20" x:Name="ListBox1" ItemsSource="{Binding Items, RelativeSource={RelativeSource AncestorType={x:Type Window}}}" DisplayMemberPath="Text"/>
 
         <Label Content="LastApplied:"/>
         <Label x:Name="LastApplied" Content="None"/>

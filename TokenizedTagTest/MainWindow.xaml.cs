@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +26,10 @@ namespace TokenizedTagTest
         public MainWindow()
         {
             Tags = new() { "Test", "Wahnsinn", "123", "Warum" };
+            //Tags = new();
+            //Items = new();
+            //Items = new List<TokenizedTagItem>() { new TokenizedTagItem("receipt"), new TokenizedTagItem("restaurant") }.AsEnumerable();
+            Items = new []{ "test", "test2" }.Select(a => new TokenizedTagItem(a)).ToList();
 
             InitializeComponent();
 
@@ -32,6 +37,7 @@ namespace TokenizedTagTest
         }
 
         public List<string> Tags { get; set; }
+        public IEnumerable<TokenizedTagItem> Items { get; set; }
 
         public string Text { get; set; }
 
@@ -54,6 +60,7 @@ namespace TokenizedTagTest
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            Debug.WriteLine(ListBox1.ItemsSource);
             ProjectsControl.AllTags = Tags;
         }
     }
